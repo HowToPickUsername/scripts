@@ -1,0 +1,67 @@
+#! /bin/sh
+#
+# dwm bar
+
+while read -r line ; do
+	case $line in
+		D*)
+			#date
+			date="${line#?}"
+			;;
+		S*)
+			# clock output
+			sys_infos="${line#?}"
+			;;
+		V*)
+			# volume 
+			VOL="${line#?}"
+			if((VOL==0))
+			then
+				volbar=" ${VOL}"
+			elif((10<=VOL && VOL<=30))
+			then
+				volbar=" ${VOL}"
+			elif((31<=VOL && VOL<=60))
+			then
+				volbar=" ${VOL}"
+			elif((61<=VOL && VOL<=100))
+			then
+				volbar=" ${VOL}"
+			else
+				volbar="${VOL}"
+			fi
+			;;
+		p*)
+			# music output
+			if(($(mpc | wc -l)>1))
+			then
+				playing="${line#?}"
+				music="$(mpc current)"
+				musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+			elif(($(mpc | wc -l)==1))
+			then
+				if(($(mpc playlist | wc -l)>0))
+				then
+					musicstatus=""
+					musicstatus="playlist end"
+				elif(($(mpc playlist | wc -l)==0))
+				then
+					musicstatus=""
+					musicstatus="playlist empty"
+				else
+					musicstatus=""
+				fi
+			else
+				musicstatus=""
+			fi
+			;;
+		X*)
+			# process id
+			processid="${line#?}"
+			;;
+	esac
+	printf "%s\n" "
+		  ${musicstatus}\
+		 ${volbar}\
+		 ${sys_infos}"
+done

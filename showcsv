@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cat $1 | head -n 1 | sed 's/|/\n/g' | nl -ba
+echo ""
+cat $1 | head -n 2 | tail -n 1 | sed 's/|/\n/g' | nl -ba

@@ -1,0 +1,106 @@
+#! /usr/bin/env bash
+#
+# cwm bar
+
+color1="#f4f4f4"
+color2="#F59BB0"
+color3="#121212"
+
+while read -r line ; do
+	case $line in
+		A*)
+			num="${line#?}"
+			if((num==0))
+			then
+				updates="%{F${color2}}%{F-} No updates avilable"
+			else
+				updates="%{F${color2}}%{F-} ${num} updates avilable"
+			fi
+			;;
+		b*)
+			#battery
+			bat="${line#?}"
+			if((bat==0))
+			then
+				battery="%{F${color2}}%{F-}${color1} empty"
+			elif((1<=bat && bat<=15))
+			then
+				battery="%{F${color2}}%{F-}${color1} ${bat}"
+			elif((16<=bat && bat<=35))
+			then
+				battery="%{F${color2}}%{F-}${color1} ${bat}"
+			elif((36<=bat && bat<=80))
+			then
+				battery="%{F${color2}}%{F-}${color1} ${bat}"
+			elif((81<=bat && bat<=99))
+			then
+				battery="%{F${color2}}%{F-}${color1} ${bat}"
+			elif((bat==100))
+			then
+				battery="%{F${color2}}%{F-}${color1} full"
+			else
+				battery=bat
+			fi
+			;;
+		D*)
+			#date
+			date="${line#?}"
+			;;
+		S*)
+			# clock output
+			sys_infos="${line#?}"
+			;;
+		T*)
+			# xtitle output
+			title="${line#?}"
+			;;
+		V*)
+			# volume 
+			VOL="${line#?}"
+			if((VOL==0))
+			then
+				volbar="%{F${color2}}%{F-} ${VOL}"
+			elif((10<=VOL && VOL<=30))
+			then
+				volbar="%{F${color2}}%{F-} ${VOL}"
+			elif((31<=VOL && VOL<=60))
+			then
+				volbar="%{F${color2}}%{F-} ${VOL}"
+			elif((61<=VOL && VOL<=100))
+			then
+				volbar="%{F${color2}}%{F-} ${VOL}"
+			else
+				volbar="${VOL}"
+			fi
+			;;
+		p*)
+			# music output
+			if(($(mpc | wc -l)>1))
+			then
+				playing="${line#?}"
+				music="$(mpc current)"
+				musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+			elif(($(mpc | wc -l)==1))
+			then
+				if(($(mpc playlist | wc -l)>0))
+				then
+					musicstatus=""
+					musicstatus="playlist end"
+				elif(($(mpc playlist | wc -l)==0))
+				then
+					musicstatus=""
+					musicstatus="playlist empty"
+				else
+					musicstatus=""
+				fi
+			else
+				musicstatus=""
+			fi
+			;;
+		X*)
+			# process id
+			processid="${line#?}"
+			;;
+	esac
+	printf "%s\n" "%{l}   %{B${color3}}%{+u}  %{F${color2}}%{F-} ${title}  %{B-}%{-u}%{r}%{B${color3}}%{+u} %{A:pkill -P ${processid}:} %{F${color2}}%{F-} ${musicstatus} ${updates} ${volbar} %{F${color2}}%{F-} ${sys_infos} %{A} %{B-}%{-u}   "
+done

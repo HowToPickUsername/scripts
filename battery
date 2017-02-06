@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+
+# # #
+# output battery stats every minute or just once
+# # #
+
+# default refresh time
+ref_time=600
+
+while getopts ":d1r:" opt; do
+	case $opt in
+		r)
+			ref_time=$OPTARG
+			;;
+		d)
+			while true; do
+				battery=$(cat /sys/class/power_supply/BAT0/capacity)
+				echo b${battery}
+				sleep ${ref_time}
+			done
+			;;
+		1)
+			battery=$(cat /sys/class/power_supply/BAT0/capacity)
+			echo ${battery}
+			;;
+		\?)
+			echo "Invalid option -$OPTARG"
+			exit
+			;;
+	esac
+done
+

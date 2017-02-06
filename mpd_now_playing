@@ -1,0 +1,59 @@
+#! /usr/bin/env bash
+
+while getopts ":d1" opt; do
+	case $opt in
+		d)
+			mpc idleloop player | {
+				while read -r line
+				do
+					if(($(mpc | wc -l)>1))
+					then
+						playing="${line#?}"
+						music="$(mpc current)"
+						musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+					elif(($(mpc | wc -l)==1))
+					then
+						if(($(mpc playlist | wc -l)>0))
+						then
+							musicstatus=""
+							musicstatus="playlist end"
+						elif(($(mpc playlist | wc -l)==0))
+						then
+							musicstatus=""
+							musicstatus="playlist empty"
+						else
+							musicstatus=""
+						fi
+					else
+						musicstatus=""
+					fi
+					echo $musicstatus
+				done
+			}
+			;;
+		1)
+			if(($(mpc | wc -l)>1))
+			then
+				playing="${line#?}"
+				music="$(mpc current)"
+				musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+			elif(($(mpc | wc -l)==1))
+			then
+				if(($(mpc playlist | wc -l)>0))
+				then
+					musicstatus=""
+					musicstatus="playlist end"
+				elif(($(mpc playlist | wc -l)==0))
+				then
+					musicstatus=""
+					musicstatus="playlist empty"
+				else
+					musicstatus=""
+				fi
+			else
+				musicstatus=""
+			fi
+			echo $musicstatus
+			;;
+	esac
+done

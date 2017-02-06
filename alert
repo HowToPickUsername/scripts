@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ogg123 /home/jj/Sounds/notify/Chime.ogg

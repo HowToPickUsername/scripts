@@ -1,0 +1,6 @@
+1.Extracts colors from Xresources file and converts them to decimal
+for i in $(cat Xresources.d/gmnfrost_colors | grep '\*' | cut -d '#' -f 2 | uniq | sed 's/../& /g'); do $(echo "ibase=16; $i" | bc >> dec_pallete); done
+2. Recover deleted files!
+grep -a -C 500 'known pattern' /dev/sda | tee /tmp/recover
+
+

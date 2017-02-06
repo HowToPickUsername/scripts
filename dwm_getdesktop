@@ -1,0 +1,11 @@
+#/usr/bin/bash
+
+while true;
+do
+	D2B=({0..1}{0..1}{0..1}{0..1}{0..1}{0..1}{0..1}{0..1}{0..1})
+	desktop="$(xprop -root | grep CURRENT_DESKTOP\(CARDINAL\) | cut -d " " -f 3)"
+	echo "U${D2B[desktop] | rev}"
+	sleep .5
+done
+
+

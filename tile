@@ -1,0 +1,68 @@
+#!/usr/bin/env dash
+# vim: set filetype=sh:
+
+# # #
+# tile windows on the screen. Puts them in a corner or half of the screen
+# # #
+
+gap=10
+panelgap=50
+width=1920
+height=1200
+
+
+while getopts ":p:h:q:" opt; do
+	case $opt in
+		q)
+			quarter=$OPTARG
+			quarterheight=$(( ((height-panelgap-gap)/2)-gap ))
+			quarterwidth=$(( ((width-(2*gap))/2)-gap ))
+			case $quarter in
+				1)
+					xdotool getactivewindow windowmove $(( 0+gap )) $(( 0+panelgap )) windowsize ${quarterwidth} ${quarterheight}
+					exit 0
+					;;
+				2)
+					xdotool getactivewindow windowmove $(( 0+gap )) $(( 0+panelgap+quarterheight+gap+gap/2 )) windowsize ${quarterwidth} ${quarterheight}
+					exit 0
+					;;
+				3)
+					xdotool getactivewindow windowmove $(( 0+gap+quarterwidth+gap+gap/2 )) $(( 0+panelgap )) windowsize ${quarterwidth} ${quarterheight}
+					exit 0
+					;;
+				4)
+					xdotool getactivewindow windowmove $(( 0+gap+quarterwidth+gap+gap/2 )) $(( 0+panelgap+quarterheight+gap+gap/2 )) windowsize ${quarterwidth} ${quarterheight}
+					exit 0
+					;;
+			esac
+			;;
+		h)
+			half=$OPTARG
+			halfheighthor=$(( ((height-panelgap-gap-gap/2 ))/2-gap ))
+			halfwidthhor=$(( width-gap-gap-gap/2 ))
+			halfheightver=$(( height-panelgap-gap-gap/2 ))
+			halfwidthver=$(( ((width-(2*gap))/2)-gap ))
+			case $half in
+				left)
+					xdotool getactivewindow windowmove $(( 0+gap )) $(( 0+panelgap )) windowsize ${halfwidthver} ${halfheightver}
+					;;
+				right)
+					xdotool getactivewindow windowmove $(( 0+gap+halfwidthver+gap+gap/2 )) $(( 0+panelgap )) windowsize ${halfwidthver} ${halfheightver}
+					;;
+				up)
+					xdotool getactivewindow windowmove $(( 0+gap )) $(( 0+panelgap )) windowsize ${halfwidthhor} ${halfheighthor}
+					;;
+				down)
+					xdotool getactivewindow windowmove $(( 0+gap)) $(( 0+panelgap+halfheighthor+gap+gap/2 )) windowsize ${halfwidthhor} ${halfheighthor}
+					;;
+			esac
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument"
+			;;
+		\?)
+			echo "Invalid option -$OPTARG"
+			exit
+			;;
+	esac
+done

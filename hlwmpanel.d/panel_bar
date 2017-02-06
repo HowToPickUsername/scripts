@@ -1,0 +1,119 @@
+#! /usr/bin/env bash
+# vim: set filetype=bash
+# hlwmpanel
+
+color1="#f4f4f4"
+color2="#F59BB0"
+color3="#121212"
+color4="#474747"
+color5="#383838"
+icon="%{B${color4}}%{F${color2}}"
+text="%{B${color5}}%{F${color1}}"
+endstr="%{B-}%{F-}"
+
+while read -r line ; do
+	case $line in
+		U*)
+			# herbstluftwm desktop
+			tags="${line#?}%{B${color4}} ${endstr}"
+			;;
+		A*)
+			num="${line#?}"
+			if((num==0))
+			then
+				updates="${icon}  ${endstr}${text} No updates avilable ${endstr}"
+			else
+				updates="${icon}  ${endstr}${text} ${num} updates avilable ${endsdstr}"
+			fi
+			;;
+		b*)
+			#battery
+			bat="${line#?}"
+			if((bat==0))
+			then
+				battery="${icon}  ${endsdstr}${text} empty ${endsdstr}"
+			elif((1<=bat && bat<=15))
+			then
+				battery="${icon}  ${endsdstr}${text} ${bat}% ${endsdstr}"
+			elif((16<=bat && bat<=35))
+			then
+				battery="${icon}  ${endsdstr}${text} ${bat}% ${endsdstr}"
+			elif((36<=bat && bat<=80))
+			then
+				battery="${icon}  ${endsdstr}${text} ${bat}% ${endsdstr}"
+			elif((81<=bat && bat<=99))
+			then
+				battery="${icon}  ${endsdstr}${text} ${bat}% ${endsdstr}"
+			elif((bat==100))
+			then
+				battery="${icon}  ${endsdstr}${text} full ${endsdstr}"
+			else
+				battery=bat
+			fi
+			;;
+		D*)
+			#date
+			date="${icon}  ${enddstr}${text} ${line#?} ${enddstr}"
+			;;
+		S*)
+			# clock output
+			sys_infos="${icon}  ${enddstr}${text} ${line#?} ${enddstr}"
+			;;
+		T*)
+			# xtitle output
+			title="${line#?}"
+			;;
+		V*)
+			# volume 
+			VOL="${line#?}"
+			if((VOL==0))
+			then
+				volbar="${icon}  ${endsdstr}${text} ${VOL} ${endsdstr}"
+			elif((1<=VOL && VOL<=30))
+			then
+				volbar="${icon}  ${endsdstr}${text} ${VOL} ${endsdstr}"
+			elif((31<=VOL && VOL<=60))
+			then
+				volbar="${icon}  ${endsdstr}${text} ${VOL} ${endsdstr}"
+			elif((61<=VOL && VOL<=100))
+			then
+				volbar="${icon}  ${endsdstr}${text} ${VOL} ${endsdstr}"
+			else
+				volbar="${VOL}"
+			fi
+			;;
+		p*)
+			# music output
+			if(($(mpc | wc -l)>1))
+			then
+				playing="${line#?}"
+				music="$(mpc current)"
+				musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+			elif(($(mpc | wc -l)==1))
+			then
+				if(($(mpc playlist | wc -l)>0))
+				then
+					musicstatus=""
+					musicstatus="playlist end"
+				elif(($(mpc playlist | wc -l)==0))
+				then
+					musicstatus=""
+					musicstatus="playlist empty"
+				else
+					musicstatus=""
+				fi
+			else
+				musicstatus=""
+			fi
+			musicstatus="${icon}  ${enddstr}${text} ${musicstatus} ${enddstr}"
+			;;
+		X*)
+			# process id
+			processid="${line#?}"
+			;;
+	esac
+	printf "%s\n" "\
+		%{l}${musicstatus}%{B${color3}}\
+		%{c}${tags}%{B${color3}}\
+		%{r}${updates}${volbar}${date}${sys_infos}"
+done

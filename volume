@@ -1,0 +1,15 @@
+#! /bin/sh
+#
+# Volume bar for bar
+
+#VOL=$(amixer get Master -M | grep -m 1 "Mono: Playback" | cut -d " " -f 5)
+MUTE=$(amixer get Master -M | tail -n 1 | cut -d [ -f 4)
+VOL=$(amixer get Master -M | grep -oE "[[:digit:]]*%" | cut -d % -f 1)
+echo ${MUTE}
+echo ${VOL}
+if [ "$MUTE" == "on]" ]
+then
+	echo "V$VOL" > $PANEL_FIFO
+else
+	echo "Vmuted" > $PANEL_FIFO
+fi

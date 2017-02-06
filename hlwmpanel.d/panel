@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+# vim: set filetype=bash
+# hlwmpanel
+
+if [ $(pgrep -cx panel) -gt 1 ] ; then
+	printf "%s\n" "The panel is already running." >&2
+	exit 1
+fi
+
+trap 'trap - TERM; kill 0' INT TERM QUIT EXIT
+
+[ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
+mkfifo "$PANEL_FIFO"
+xtitle -sf 'T%s' > "$PANEL_FIFO" &
+clock -sf 'S%H:%M' > "$PANEL_FIFO" &
+clock -sf 'D%a, %d %B' > "$PANEL_FIFO" &
+mpc idleloop player > "$PANEL_FIFO" &
+any_updates -d > "$PANEL_FIFO" &
+/home/jj/scripts/hlwmpanel.d/getdesktop > "$PANEL_FIFO" &
+echo "p" > "$PANEL_FIFO" &
+
+echo "" | lemonbar -B "#222222" -p -g x31 &
+
+sleep .5
+
+
+bash /home/jj/scripts/hlwmpanel.d/panel_bar < "$PANEL_FIFO" | lemonbar \
+	-f "-*-termsynu-medium-*-*-*-11-*-*-*-*-*-*-*"\
+	-f "-wuncon-siji-medium-r-normal--10-100-75-75-c-80-iso10646-1"\
+	-d\
+	-p\
+	-B "#ff121212" \
+	-F "#fff0f0f0" \
+	-g 1914x25+3+3
+#	-U "#F59BB0" \
+#	-u 2
+
+#	-f "-artwiz-drift-medium-r-normal--10-100-75-75-n-60-iso10646-1"\
+
+wait

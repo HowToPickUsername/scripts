@@ -1,0 +1,128 @@
+#! /bin/sh
+#
+# dwm bar
+
+while read -r line ; do
+	case $line in
+		A*)
+			num="${line#?}"
+			if((num==0))
+			then
+				updates="No updates avilable"
+			else
+				updates=" ${num} updates avilable"
+			fi
+			;;
+		b*)
+			#battery
+			bat="${line#?}"
+			if((bat==0))
+			then
+				battery=" empty"
+			elif((1<=bat && bat<=15))
+			then
+				battery=" ${bat}  "
+			elif((16<=bat && bat<=35))
+			then
+				battery=" ${bat}  "
+			elif((36<=bat && bat<=80))
+			then
+				battery=" ${bat}  "
+			elif((81<=bat && bat<=99))
+			then
+				battery=" ${bat}  "
+			elif((bat==100))
+			then
+				battery=" full "
+			else
+				battery=bat
+			fi
+			;;
+		D*)
+			#date
+			date="${line#?}"
+			;;
+		C*)
+			# conky output
+			conky="${line#?}"
+			;;
+		U*)
+			desktops="${line#?}"
+			;;
+		S*)
+			# clock output
+			sys_infos=" ${line#?}"
+			;;
+		T*)
+			# xtitle output
+			title=" ${line#?} "
+			;;
+		V*)
+			# volume 
+			VOL="${line#?}"
+			if((VOL==0))
+			then
+				volbar=" ${VOL}"
+			elif((1<=VOL && VOL<=15))
+			then
+				volbar=" ${VOL}"
+			elif((16<=VOL && VOL<=75))
+			then
+				volbar=" ${VOL}"
+			elif((76<=VOL && VOL<=100))
+			then
+				volbar=" ${VOL}"
+			else
+				volbar=""
+				volbar="${VOL}"
+			fi
+			;;
+		p*)
+			# music output
+			if(($(mpc | wc -l)>1))
+			then
+				playing="${line#?}"
+				music="$(mpc current)"
+				musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+				music_position="$(mpc -f %position% | head -n 1)"
+				music_playlist="$(mpc playlist | wc -l)"
+			elif(($(mpc | wc -l)==1))
+			then
+				if(($(mpc playlist | wc -l)==0))
+				then
+					musicstatus=""
+					musicstatus="playlist empty"
+				elif(($(mpc playlist | wc -l)>0))
+				then
+					if [ "$music_position" == "$music_playlist" ]
+					then
+						musicstatus=""
+						musicstatus="playlist end"
+					else
+						musicstatus=""
+						musicstatus="stopped"
+					fi
+				else
+					musicstatus=""
+				fi
+			else
+				musicstatus=""
+			fi
+			musicstatus=" ${musicstatus}"
+			;;
+		X*)
+			# process id
+			processid="${line#?}"
+			;;
+	esac
+	printf "%s\n" "\
+		%{l} %{+u}%{B#ff323246}%{U#ff9bbbc6}  ${desktops} %{B#ff1c1c23}%{-u} \
+		%{+u}%{B#ff323246}%{U#ff9bbbc6}${title}%{B#ff1c1c23}%{-u} \
+		%{r}%{A:pkill -P ${processid}:}\
+		%{F#ff8c8ca0} \
+		%{+u}%{B#ff323246}%{U#ff9bbbc6} ${musicstatus} %{B#ff1c1c23}%{-u} \
+		%{+u}%{B#ff323246}%{U#ff9bbbc6} ${volbar} %{B#ff1c1c23}%{-u} \
+		%{+u}%{B#ff323246}%{U#ff9bbbc6} ${battery} %{B#ff1c1c23}%{-u} \
+		%{+u}%{B#ff323246}%{U#ff9bbbc6} ${updates} %{B#ff1c1c23}%{-u} \
+		%{+u}%{B#ff323246}%{U#ff9bbbc6} ${sys_infos} %{B#ff1c1c23}%{-u} %{A}"
+done

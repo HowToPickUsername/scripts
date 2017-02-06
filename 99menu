@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ $(pgrep -cx 9menu) -ge 1 ] ; then
+	killall "9menu"
+	9menu -teleport -bg "#121212" -fg "#a6a6a6" -font "-*-termsynu-medium-*-*-*-13-*-*-*-*-*-*-*" -popup -file /home/jj/.9menurc
+else
+	9menu -teleport -bg "#121212" -fg "#a6a6a6" -font "-*-termsynu-medium-*-*-*-13-*-*-*-*-*-*-*" -popup -file /home/jj/.9menurc
+fi

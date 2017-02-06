@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+if [ $(pgrep -cx panel) -gt 1 ] ; then
+	printf "%s\n" "The panel is already running." >&2
+	exit 1
+fi
+
+trap 'trap - TERM; kill 0' INT TERM QUIT EXIT
+
+[ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
+mkfifo "$PANEL_FIFO"
+clock -sf 'S%a %H:%M' > "$PANEL_FIFO" &
+xtitle -sf T%s > "$PANEL_FIFO" &
+mpc idleloop player > "$PANEL_FIFO" &
+battery -d > "$PANEL_FIFO" &
+any_updates -d > "$PANEL_FIFO" &
+bspc subscribe report > "$PANEL_FIFO" &
+echo "p" > "$PANEL_FIFO" &
+echo "D$(date | cut -d " " -f 1,2,3)" > "$PANEL_FIFO" &
+
+bash /home/jj/scripts/bspwm_panel/panel_bar < "$PANEL_FIFO" | lemonbar \
+	-f "-*-termsynu-medium-*-*-*-14-*-*-*-*-*-*-*"\
+	-f "-*-siji-medium-*-normal-*-10-100-75-75-c-80-iso10646-1"\
+	-d\
+	-p\
+	-B "#ff000000" \
+	-F "#ffffffff" \
+	-g x18++
+
+#xsetroot -name "${bar}"
+
+wait

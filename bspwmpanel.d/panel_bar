@@ -1,0 +1,171 @@
+#! /bin/sh
+#
+# dwm bar
+
+foreground="#AAAAAA"
+background="#000000"
+color0="#000000"
+color8="#555555"
+color1="#AA0000"
+color9="#FF5555"
+color2="#00AA00"
+color10="#55FF55"
+color3="#AA5500"
+color11="#FFFF55"
+color4="#0000AA"
+color12="#5555FF"
+color5="#AA00AA"
+color13="#FF55FF"
+color6="#00AAAA"
+color14="#55FFFF"
+color7="#AAAAAA"
+color15="#FFFFFF"
+
+while read -r line ; do
+	case $line in
+		W*)
+			# bspwm's state
+			wm=""
+			IFS=':'
+			set -- ${line#?}
+			while [ $# -gt 0 ] ; do
+				item=$1
+				name=${item#?}
+				case $item in
+					[fFoOuU]*)
+						case $item in
+							f*)
+								col="%{F${color7}}"
+								;;
+							F*)
+								col="%{F${color15}}"
+								;;
+							o*)
+								col="%{F${color7}}"
+								;;
+							O*)
+								col="%{F${color15}}"
+								;;
+							u*)
+								col="%{F${color7}}%{B${color1}}"
+								;;
+							U*)
+								col="%{F${color15}}%{B${color9}}"
+								;;
+						esac
+						wm="${wm} ${col}${name} %{F-}%{B-}"
+						;;
+				esac
+				shift
+			done
+			;;
+		A*)
+			num="${line#?}"
+			if((num==0))
+			then
+				updates="No updates avilable"
+			else
+				updates=" ${num} updates avilable"
+			fi
+			;;
+		b*)
+			#battery
+			bat="${line#?}"
+			if((bat==0))
+			then
+				battery=" empty"
+			elif((1<=bat && bat<=15))
+			then
+				battery=" ${bat}  "
+			elif((16<=bat && bat<=35))
+			then
+				battery=" ${bat}  "
+			elif((36<=bat && bat<=80))
+			then
+				battery=" ${bat}  "
+			elif((81<=bat && bat<=99))
+			then
+				battery=" ${bat}  "
+			elif((bat==100))
+			then
+				battery=" full "
+			else
+				battery=bat
+			fi
+			;;
+		D*)
+			#date
+			date="${line#?}"
+			;;
+		C*)
+			# conky output
+			conky="${line#?}"
+			;;
+		S*)
+			# clock output
+			sys_infos=" ${line#?}"
+			;;
+		T*)
+			# xtitle output
+			title=" ${line#?} "
+			;;
+		V*)
+			# volume 
+			VOL="${line#?}"
+			if((VOL==0))
+			then
+				volbar=" ${VOL}"
+			elif((1<=VOL && VOL<=15))
+			then
+				volbar=" ${VOL}"
+			elif((16<=VOL && VOL<=75))
+			then
+				volbar=" ${VOL}"
+			elif((76<=VOL && VOL<=100))
+			then
+				volbar=" ${VOL}"
+			else
+				volbar=""
+				volbar="${VOL}"
+			fi
+			;;
+		p*)
+			# music output
+			if(($(mpc | wc -l)>1))
+			then
+				playing="${line#?}"
+				music="$(mpc current)"
+				musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+				music_position="$(mpc -f %position% | head -n 1)"
+				music_playlist="$(mpc playlist | wc -l)"
+			elif(($(mpc | wc -l)==1))
+			then
+				if(($(mpc playlist | wc -l)==0))
+				then
+					musicstatus=""
+					musicstatus="playlist empty"
+				elif(($(mpc playlist | wc -l)>0))
+				then
+					if [ "$music_position" == "$music_playlist" ]
+					then
+						musicstatus=""
+						musicstatus="playlist end"
+					else
+						musicstatus=""
+						musicstatus="stopped"
+					fi
+				else
+					musicstatus=""
+				fi
+			else
+				musicstatus=""
+			fi
+			musicstatus=" ${musicstatus}"
+			;;
+		X*)
+			# process id
+			processid="${line#?}"
+			;;
+	esac
+	printf "%s\n" "%{l}${wm}%{r}%{A:pkill -P ${processid}:}${musicstatus}${volbar}${battery}${updates}${sys_infos}"
+done

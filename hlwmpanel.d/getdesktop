@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+# vim: set filetype=bash
+# get desktops for hlwmpanel
+
+color1="#f4f4f4"
+color2="#F59BB0"
+color3="#121212"
+color4="#474747"
+color5="#383838"
+color6="#F5CCD4"
+color7="#121212"
+color8="#858585"
+
+herbstclient --idle 2>/dev/null | {
+	while read -r line
+	do
+		case $line in
+			tag*)
+				tags=( $(herbstclient tag_status) )
+				cend="%{F-}%{B-}"
+				echo -n "U"
+				for tag in "${tags[@]}"
+				do
+					case ${tag:0:1} in
+						'#') cstart="%{F${color1}}%{B${color4}} " ;;
+						'+') cstart="%{F${color1}}%{B${color4}} " ;;
+						':') cstart="%{F${color6}}%{B${color4}} " ;;
+						'!') cstart="%{F${color2}}%{B${color4}} " ;;
+						*) cstart="%{F${color8}}%{B${color4}} " ;;
+					esac
+					tagstring="${cstart}+${cend}"
+					echo -n "$tagstring"
+				done
+				echo
+				;;
+		esac
+	done
+}
+#${tag:1}
+#				read hook || exit
+#				case ${hook} in
+#					tag*) tags=( $(herbstclient tag_status) ) ;;
+#					quit_panel*) exit ;;
+#				esac
+#		echo -n "U"
+#		echo
+#		echo "T${client}"
