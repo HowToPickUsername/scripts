@@ -1,7 +1,26 @@
-#!/bin/bash
-notify-send "DUNST_COMMAND_PAUSE"
+#!/usr/bin/env bash
+
+declare sshot=$HOME/tmp_screenshot.png
+
 sleep .2
-scrot /tmp/screenshot.png
-ffmpeg -loglevel quiet -y -i /tmp/screenshot.png -vf "gblur=sigma=15" /tmp/screenshotblur.png
-i3lock --nofork -f -e -i /tmp/screenshotblur.png
+notify-send "DUNST_COMMAND_PAUSE"
+scrot "$sshot"
+
+while getopts ":bp" opt ; do
+	case $opt in
+		b)
+			# blur - slower
+			ffmpeg -loglevel quiet -y -i "$sshot" -vf "gblur=sigma=15" "$sshot"
+			;;
+		p)
+			# pixelize - faster
+			convert "$sshot" -scale 10% -scale 1000% "$sshot"
+			;;
+		\?)
+			;;
+	esac
+done
+
+i3lock --nofork -f -e -i $sshot
+rm $sshot
 notify-send "DUNST_COMMAND_RESUME"
