@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# display brightness level
+
+ref_time=5
+max_brightness=$(cat /sys/class/backlight/acpi_video0/max_brightness)
+
+while getopts ":d1r:" opt; do
+	case $opt in
+		r)
+			ref_time=$OPTARG
+			;;
+		d)
+			while trude; do
+				brightness=$(cat /sys/class/backlight/acpi_video0/brightness)
+				echo k$(bc -l <<< 'scale=2; ${brightness}/${max_brightness}' | sed 's/\.//g')
+				sleep ${ref_time}
+			done
+			;;
+		1)
+			brightness=$(cat /sys/class/backlight/acpi_video0/brightness)
+			echo k$(bc -l <<< 'scale=2; ${brightness}/${max_brightness}' | sed 's/\.//g')
+			;;
+		\?)
+			echo "Invalid option -$OPTARG"
+			exit
+			;;
+	esac
+done
+

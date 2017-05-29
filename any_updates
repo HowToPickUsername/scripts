@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# return number of updates
+
+# default refresh time
+ref_time=600
+
+while getopts ":d1fr:" opt; do
+	case $opt in
+	r)
+		ref_time=$OPTARG
+		;;
+	d)
+		while true; do
+			updates=$(checkupdates | wc -l)
+			echo ${updates}
+			sleep ${ref_time}
+		done
+		;;
+	1)
+		updates=$(checkupdates | wc -l)
+		echo ${updates}
+		;;
+	f)
+		updates=$(checkupdates | wc -l)
+		echo "$updates updates"
+		;;
+	\?)
+		echo "Invalid option -$OPTARG"
+		exit
+	;;
+	esac
+done
+
