@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-while getopts ":d1" opt; do
+while getopts ":d1i" opt; do
 	case $opt in
 		d)
 			mpc idleloop player | {
@@ -54,6 +54,14 @@ while getopts ":d1" opt; do
 				musicstatus=""
 			fi
 			echo $musicstatus
+			;;
+		i)
+			mpc idleloop player | {
+				while read -r line
+				do
+					pkill -RTMIN+1 i3blocks
+				done
+			}
 			;;
 	esac
 done
