@@ -2,6 +2,7 @@
 
 declare sshot=$HOME/tmp_screenshot.png
 
+pkill compton
 sleep .2
 notify-send "DUNST_COMMAND_PAUSE"
 scrot "$sshot"
@@ -22,5 +23,6 @@ while getopts ":bp" opt ; do
 done
 
 i3lock --nofork -f -e -i $sshot
+compton -b
 rm $sshot
 notify-send "DUNST_COMMAND_RESUME"
