@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+function check_title {
+	if(($(mpc | wc -l)>1)) ; then
+		playing="${line#?}"
+		music="$(mpc current)"
+		musicstatus="$(mpc | grep -oP "(?<=\[)(\w+)" ) - ${music}"
+	elif(($(mpc | wc -l)==1)) ; then
+		if(($(mpc playlist | wc -l)>0)) ; then
+			musicstatus=""
+			musicstatus="playlist end"
+		elif(($(mpc playlist | wc -l)==0)) ; then
+			musicstatus=""
+			musicstatus="playlist empty"
+		else
+			musicstatus=""
+		fi
+	else
+		musicstatus=""
+	fi
+	echo $musicstatus
+}
+
+function scroll {
+	line=$1
+	while true ; do
+		if [[ $(wc -m - < "$line" ) -gt 20 ]] ; then
+			true
+		else
+			echo "$line"
+		fi
+	done
+}
+
+check_title
+mpc idleloop player |
+while
+	read -r line
+do
+	check_title
+done
