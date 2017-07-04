@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+declare ret_value
+
+function m_log {
+	if $verbose ; then
+		echo "$@"
+	fi
+}
+
+function copy_to_clipboard {
+	true
+}
+
+function send_to_imgur {
+	response=$(curl -s\
+		-H "Authorization: Client-ID c9a6efb3d7932fd" \
+		-H "Expect: " \
+		-F "image=@$sname" \
+		https://api.imgur.com/3/image.xml) 2>/dev/null
+	rm "$sname"
+	link=$(echo "$response" | grep -oP 'http.*(?=</link>)')
+	if [[ -z "$quiet" ]] ; then
+		echo "$link"
+	fi
+	if $p_copy ; then
+		copy_to_clipboard
+	fi
+}
+
+function save_to_path {
+	local local_sname=$1
+	local local_file_path=$2
+	if [[ -z "$file_name" ]] ; then
+		file_name="$(date)"
+	fi
+	mv "$1" "$2/$file_name.png"
+	if $p_copy ; then
+		copy_to_clipboard
+	fi
+}
+
+function usage {
+	echo -ne "Usage:\n
+	\t-n -- save as filename, ignored with -i\n
+	\t-i -- send to imgur, returns a link\n
+	\t-s -- saves in path, otherwise saves in home\n
+	\t-x -- copy imgur link to clipboard\n
+	\t-q -- dont output imgur link, can be used with -x\n"
+	exit 0
+}
+
+while getopts ":in:s:vxq" opt; do
+	case $opt in
+		u)
+			usage
+			;;
+		v)
+			verbose=true
+			;;
+		n)
+			file_name="$OPTARG"
+			file_name="$(echo "$file_name" | tr -d ' ')"
+			;;
+		i)
+			p_imgur=true
+			;;
+		s)
+			p_save=true
+			file_path="$OPTARG"
+			;;
+		x)
+			p_copy=true
+			;;
+		q)
+			# dont output link
+			quiet=true
+			;;
+	esac
+done
+
+# prerun checks
+if which xclip &>/dev/null ; then
+	cp_to_clip=true
+else
+	echo -ne "You need xclip to copy to clipboard.\nAdress will not be copied\n"
+fi
+
+if ! which slop &>/dev/null ; then
+	echo -ne "You need slop to use this script\n"
+	exit 1
+fi
+
+if ! which import &>/dev/null ; then
+	echo -ne "You need import to take a screenshot, it's a part of imagemagick\n"
+	exit 1
+fi
+
+# take the screenshot
+coords="$(slop -b 2 -c 0.5,0.5,0.5,0.2 -l)"
+sname="$(mktemp).png"
+
+import -window root -crop "$coords" -quality 100 "$sname" &> /dev/null
+
+if $p_imgur ; then
+	send_to_imgur
+fi
+
+if $p_save ; then
+	if [[ -z "$file_path" ]] ; then
+		file_path=$HOME
+	fi
+	save_to_path "$sname" "$file_path"
+fi
