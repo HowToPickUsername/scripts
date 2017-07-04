@@ -9,7 +9,7 @@ echo ${MUTE}
 echo ${VOL}
 if [ "$MUTE" == "on]" ]
 then
-	echo "V$VOL" > $PANEL_FIFO
+	echo "$VOL"
 else
-	echo "Vmuted" > $PANEL_FIFO
+	echo "muted"
 fi
